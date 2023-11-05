@@ -14,7 +14,7 @@ fluid = {
 	objCanvas:undefined,
 	ctx:undefined,
 
-	enableFrameDragging:false,
+	enableFrameDragging:true,
 	enableEmitter:true,
 
 	loopTimer:undefined,
@@ -86,31 +86,47 @@ fluid = {
     
 
 	initDOM:function(){
-		// init DOM elements
-
-		// canvas
-		this.objCanvas = document.createElement('canvas');
-		this.objCanvas.style.width = (this.objCanvas.width = this.vectorField.width) + 'px';
-		this.objCanvas.style.height = (this.objCanvas.height = this.vectorField.height) + 'px';
-		this.ctx = this.objCanvas.getContext('2d');
-
-		var obj = document.getElementById('fluid_container') || document.body;
-		obj.appendChild( this.objCanvas );
-
-		document.addEventListener( 'mousemove', function( _event ){
-			var e = _event || event;
-			var x = e.clientX;
-			var y = e.clientY;
-			fluid.mouseMove( x,y );
-		});
-		this.objCanvas.addEventListener( 'mousedown', function( _event ){
-			fluid.mouseDrag = true;
-		});
-		this.objCanvas.addEventListener( 'mouseup', function( _event ){
-			fluid.mouseDrag = false;
-		});
-
-	},
+        // init DOM elements
+    
+        // canvas
+        this.objCanvas = document.createElement('canvas');
+        this.objCanvas.style.width = (this.objCanvas.width = this.vectorField.width) + 'px';
+        this.objCanvas.style.height = (this.objCanvas.height = this.vectorField.height) + 'px';
+        this.ctx = this.objCanvas.getContext('2d');
+    
+        var obj = document.getElementById('fluid_container') || document.body;
+        obj.appendChild( this.objCanvas );
+    
+        // Handle both mouse and touch events
+        var handleMove = function(e) {
+            var x, y;
+            if (e.touches) { // Touch event
+                x = e.touches[0].clientX;
+                y = e.touches[0].clientY;
+            } else { // Mouse event
+                x = e.clientX;
+                y = e.clientY;
+            }
+            fluid.mouseMove(x, y);
+        };
+    
+        var handleDown = function() {
+            fluid.mouseDrag = true;
+        };
+    
+        var handleUp = function() {
+            fluid.mouseDrag = false;
+        };
+    
+        // Add event listeners for both mouse and touch events
+        this.objCanvas.addEventListener('mousemove', handleMove);
+        this.objCanvas.addEventListener('mousedown', handleDown);
+        this.objCanvas.addEventListener('mouseup', handleUp);
+        this.objCanvas.addEventListener('touchmove', handleMove);
+        this.objCanvas.addEventListener('touchstart', handleDown);
+        this.objCanvas.addEventListener('touchend', handleUp);
+    },
+    
 
 	start:function(){
 		window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
